@@ -1,0 +1,8 @@
+-r core.txt
+flake8==3.7.9
+Faker==4.0.3
+pytest==5.4.1
+pytest-cov==2.8.1
+pytest-cover==3.0.0
+pytest-coverage==0.0
+coveralls==2.0.0

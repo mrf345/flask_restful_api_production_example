@@ -1,0 +1,10 @@
+{
+    "production": {
+        "app_function": "requester.main.app",
+        "profile_name": "default",
+        "project_name": "flask-productio",
+        "runtime": "python3.7",
+        "s3_bucket": "production-ready-requester",
+        "environment_variables": {}
+    }
+}
