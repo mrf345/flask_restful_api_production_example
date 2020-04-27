@@ -1,5 +1,16 @@
-## Flask restful API production example
-There's a [live demo](https://925b1pnu98.execute-api.us-east-2.amazonaws.com/production) of the project hosted on AWS Lambda functions.
+
+<h2 align='center'>Flask restful API production example</h2>
+<p align='center'>
+    There's a <a href='https://925b1pnu98.execute-api.us-east-2.amazonaws.com/production'>live demo</a> of the project hosted on AWS Lambda functions.
+    <br /><br />
+    <a href='https://github.com/mrf345/flask_restful_api_production_example/actions' target='_blank' style='margin-right: 2%'>
+        <img alt='Actions Status' src='https://github.com/mrf345/flask_restful_api_production_example/workflows/CI/badge.svg' />
+    </a>
+    <a href='https://coveralls.io/github/mrf345/flask_restful_api_production_example?branch=master'>
+        <img src='https://coveralls.io/repos/github/mrf345/flask_restful_api_production_example/badge.svg?branch=master' alt='Coverage Status' />
+    </a>
+</p>
+
 
 ### Setup
 ###### - With docker:
@@ -23,6 +34,7 @@ Make sure `Python 3.7` and `pip` are installed and then:
 - Errors monitoring and reporting with `Sentry`
 - Github actions testing, linting and deployment with `PyTest` and `Flake8`. 
 
+
 ###### - Project structure
 <pre>
 .
@@ -34,7 +46,7 @@ Make sure `Python 3.7` and `pip` are installed and then:
 ├── migrations
 │   ├── alembic.ini
 │   ├── env.py
-│   ├── README
+│   ├── README.md
 │   ├── script.py.mako
 │   └── versions
 ├── README.md
@@ -56,12 +68,12 @@ Make sure `Python 3.7` and `pip` are installed and then:
 │   │   ├── models.py
 │   │   ├── relations.py
 │   │   └── setup.py
-│   ├── database.db
 │   ├── __init__.py
 │   ├── main.py
 │   └── utils.py
 ├── requirements
 │   ├── core.txt
+│   ├── deploy.txt
 │   └── test.txt
 ├── tests
 │   ├── features.py
@@ -79,6 +91,6 @@ Make sure `Python 3.7` and `pip` are installed and then:
 - [x] Setup RDS with mysql and lambda
 - [x] Add github CI action
 - [x] Add README.md with instructions
-- [ ] Add test and coverage badges
-- [ ] Add github AWS deploy action 
-- [ ] Update folder structure
+- [x] Add test and coverage badges
+- [x] Add github AWS deploy action 
+- [x] Update folder structure
