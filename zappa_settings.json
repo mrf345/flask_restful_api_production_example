@@ -5,6 +5,8 @@
         "project_name": "flask-productio",
         "runtime": "python3.7",
         "s3_bucket": "production-ready-requester",
-        "environment_variables": {}
+        "environment_variables": {
+            "PRODUCTION": "True"
+        }
     }
 }

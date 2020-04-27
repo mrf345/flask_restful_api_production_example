@@ -1,0 +1,2 @@
+-r core.txt
+zappa==0.51.0
