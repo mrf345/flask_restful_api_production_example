@@ -1,9 +1,9 @@
 import os
-from flask_migrate import upgrade as db_upgrade
+# from flask_migrate import upgrade as db_upgrade
 
 from . import db, migrate
 from .defaults import add_default_roles, add_default_tokens
-from ..constants import MIGRATION_FOLDER
+# from ..constants import MIGRATION_FOLDER
 
 
 def setup_database(app):
@@ -16,4 +16,7 @@ def setup_database(app):
         add_default_tokens()
 
         if not os.getenv('TESTING'):
-            db_upgrade(directory=MIGRATION_FOLDER)
+            pass
+            # FIXME: Migrating on the go with RDS, is a bad idea!
+            # Turn into a separate task to be lunched prior to deployment
+            # db_upgrade(directory=MIGRATION_FOLDER)
