@@ -21,5 +21,4 @@ jobs:
         export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET }}"
         export AWS_DEFAULT_REGION="${{ secrets.REGION }}"
         export PRODUCTION="True"
-        python ./spit_json.py
         zappa update
