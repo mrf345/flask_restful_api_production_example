@@ -15,6 +15,7 @@ jobs:
         python-version: '3.7'
     - name: Install dependencies
       run: |
+        pip install virtualenv
         virtualenv --python=python3.7 --system-site-packages venv
         source venv/bin/activate
         pip install -r requirements/deploy.txt
