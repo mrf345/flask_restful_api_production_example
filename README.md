@@ -49,6 +49,7 @@ Make sure `Python 3.7` and `pip` are installed and then:
 │   ├── README.md
 │   ├── script.py.mako
 │   └── versions
+│       └── d826e674004f_.py
 ├── README.md
 ├── requester
 │   ├── api
@@ -79,6 +80,7 @@ Make sure `Python 3.7` and `pip` are installed and then:
 │   ├── features.py
 │   ├── __init__.py
 │   └── users.py
+├── upgrade_db.sh
 └── zappa_settings.json
 </pre>
 
