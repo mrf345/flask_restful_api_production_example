@@ -1,15 +1,17 @@
+import pytest
 from random import choice
 from http import HTTPStatus
 
-from . import client, get_random_user, get_random_feature
-from requester.database.models import Feature, User
+from . import get_random_feature
+from requester.database.models import Feature
 from requester.constants import LIMIT_PER_PAGE, TOKENS
 
 
-def test_get_feature(client):
-    feature = get_random_feature(client)
+@pytest.mark.usefixtures('c')
+def test_get_feature(c):
+    feature = get_random_feature(c)
 
-    response = client.get(f'/features/{feature.id}')
+    response = c.get(f'/features/{feature.id}')
     fetched_feature = response.json
 
     assert fetched_feature is not None and fetched_feature != {}
@@ -18,8 +20,9 @@ def test_get_feature(client):
             assert getattr(feature, key, None) == value
 
 
-def test_get_features(client):
-    response = client.get('/features/', follow_redirects=True)
+@pytest.mark.usefixtures('c')
+def test_get_features(c):
+    response = c.get('/features/', follow_redirects=True)
     features = response.json
 
     assert [
@@ -28,28 +31,30 @@ def test_get_features(client):
     ] == features
 
 
-def test_update_feature_fails_with_wrong_token(client):
-    feature = get_random_feature(client)
+@pytest.mark.usefixtures('c')
+def test_update_feature_fails_with_wrong_token(c):
+    feature = get_random_feature(c)
     new_data = {'id': feature.id, 'name': 'testing', 'content': 'testing', 'users': [1, 2]}
     headers = {'Authorization': f'Schema wrong-token-should-fails'}
-    response = client.put(f'/features/{feature.id}',
-                          json=new_data,
-                          headers=headers,
-                          follow_redirects=True)
+    response = c.put(f'/features/{feature.id}',
+                     json=new_data,
+                     headers=headers,
+                     follow_redirects=True)
 
     assert response.status_code == HTTPStatus.UNAUTHORIZED
     assert response.json.get('message') == 'Authentication is required'
 
 
-def test_update_feature(client):
-    feature = get_random_feature(client)
+@pytest.mark.usefixtures('c')
+def test_update_feature(c):
+    feature = get_random_feature(c)
     new_data = {'id': feature.id, 'name': 'testing', 'content': 'testing', 'users': [1, 2]}
     token = choice(TOKENS)
     headers = {'Authorization': f'Schema {token}'}
-    response = client.put(f'/features/{feature.id}',
-                          json=new_data,
-                          headers=headers,
-                          follow_redirects=True)
+    response = c.put(f'/features/{feature.id}',
+                     json=new_data,
+                     headers=headers,
+                     follow_redirects=True)
     fetched_feature = response.json
 
     assert fetched_feature is not None and fetched_feature != {}

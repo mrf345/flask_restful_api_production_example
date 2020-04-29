@@ -61,6 +61,7 @@ Make sure `Python 3.7` and `pip` are installed and then:
 │   │   ├── __init__.py
 │   │   ├── limiter.py
 │   │   └── setup.py
+│   ├── config.py
 │   ├── constants.py
 │   ├── database
 │   │   ├── defaults.py
@@ -77,6 +78,7 @@ Make sure `Python 3.7` and `pip` are installed and then:
 │   ├── deploy.txt
 │   └── test.txt
 ├── tests
+│   ├── conftest.py
 │   ├── features.py
 │   ├── __init__.py
 │   └── users.py
