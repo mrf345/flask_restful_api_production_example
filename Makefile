@@ -1,7 +1,7 @@
 test: install
-	TESTING="True" pytest --cov=./requester tests/*
+	TESTING="True" python -m pytest --cov=./requester tests/*
 lint: install
-	TESTING="True" flake8 requester
+	TESTING="True" flake8 requester && flake8 tests
 run: install
 	DEVELOPEMENT="True" FLASK_APP="app" flask run
 install:
