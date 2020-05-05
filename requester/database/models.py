@@ -37,8 +37,8 @@ class User(db.Model, GenericMixin, NameMixin):
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     features = db.relationship('Feature',
                                secondary=UserFeatures,
-                               lazy='subquery',
-                               backref=db.backref('users', lazy=True))
+                               lazy='dynamic',
+                               backref=db.backref('users', lazy='dynamic'))
 
     @property
     def role(self):

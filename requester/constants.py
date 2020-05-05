@@ -1,3 +1,6 @@
+from os import getenv as get_env
+
+
 VERSION = '0.1.0'
 
 DEFAULT_ROLES = [
@@ -22,3 +25,8 @@ FALLBACK_DB = 'database.db'
 
 REQUESTS_LIMIT_HOURS = 5
 REQUESTS_LIMIT_PER_HOURS = 20
+
+FLASK_ENV = get_env('FLASK_ENV', 'production')
+PRODUCTION = FLASK_ENV == 'production'
+TESTING = FLASK_ENV == 'testing'
+DEVELOPMENT = FLASK_ENV == 'development'

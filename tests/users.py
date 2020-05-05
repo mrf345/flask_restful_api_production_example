@@ -1,9 +1,10 @@
 import pytest
 from random import choice
 from http import HTTPStatus
+from sqlalchemy.sql.expression import func
 
 from . import get_random_user
-from requester.database.models import User
+from requester.database.models import User as UserDB, Feature as FeatureDB
 from requester.constants import LIMIT_PER_PAGE, TOKENS
 
 
@@ -26,7 +27,7 @@ def test_get_users(c):
 
     assert [
         {'id': u.id, 'name': u.name, 'address': u.address, 'role': u.role}
-        for u in User.query.limit(LIMIT_PER_PAGE)
+        for u in UserDB.query.limit(LIMIT_PER_PAGE)
     ] == users
 
 
@@ -59,3 +60,24 @@ def test_update_user(c):
     assert fetched_user is not None and fetched_user != {}
     for key, value in fetched_user.items():
         assert new_data.get(key) == value
+
+
+@pytest.mark.usefixtures('c')
+def test_list_user_features(c):
+    user = None
+
+    with c.application.app_context():
+        user = UserDB.query.filter(func.length(UserDB.features) > 0).first()
+
+    assert user is not None
+
+    response = c.get(f'/users/{user.id}/features',
+                     json=True,
+                     follow_redirects=True)
+    features = response.json
+
+    for feature in features:
+        feature_rec = FeatureDB.get(feature.get('id'))
+
+        for key, value in feature.items():
+            assert getattr(feature_rec, key, None) == value

@@ -5,4 +5,5 @@ pytest==5.4.1
 pytest-cov==2.8.1
 pytest-cover==3.0.0
 pytest-coverage==0.0
+pytest-pudb==0.7.0
 coveralls==2.0.0

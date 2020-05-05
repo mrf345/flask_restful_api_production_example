@@ -1,27 +1,24 @@
 from http import HTTPStatus
 from flask import request
-from flask_restx import Resource, fields, abort
+from flask_restx import Resource, abort
 
 from .. import api
+from . import UserSerializer, FeatureSerializer
 from ..auth import token_required
 from ...database import db
 from ...database.models import User as UserDB, Role as RoleDB
-from ...constants import LIMIT_PER_PAGE, DEFAULT_ROLES
+from ...constants import LIMIT_PER_PAGE
 from ...utils import convert_safely
 
 
 def setup_users_endpoint():
     endpoint = api.namespace(name='users', description='Endpoint to handle users CRUD')
-    model = api.model('User', {'id': fields.Integer(required=False, description='user identification number'),
-                               'name': fields.String(required=True, description='user full name', max_length=100, min_length=3),
-                               'role': fields.String(required=True, description='user role name', enum=DEFAULT_ROLES),
-                               'address': fields.String(required=False, description='user full address', max_length=200)})
 
     @endpoint.route('/')
     class ListUsers(Resource):
         ''' List and Add users. '''
 
-        @endpoint.marshal_list_with(model)
+        @endpoint.marshal_list_with(UserSerializer)
         @endpoint.param('page', description='page number to retrieve users for')
         def get(self):
             ''' List of paginated users'''
@@ -30,8 +27,8 @@ def setup_users_endpoint():
 
             return pagination.items, HTTPStatus.OK
 
-        @endpoint.expect(model)
-        @endpoint.marshal_with(model)
+        @endpoint.expect(UserSerializer)
+        @endpoint.marshal_with(UserSerializer)
         def post(self):
             ''' Add new user '''
             try:
@@ -47,7 +44,7 @@ def setup_users_endpoint():
     class User(Resource):
         ''' Get, Update and Delete users. '''
 
-        @endpoint.marshal_with(model)
+        @endpoint.marshal_with(UserSerializer)
         def get(self, id):
             ''' Get user '''
             user = UserDB.get(id)
@@ -57,8 +54,8 @@ def setup_users_endpoint():
 
             return user, HTTPStatus.OK
 
-        @endpoint.expect(model)
-        @endpoint.marshal_with(model)
+        @endpoint.expect(UserSerializer)
+        @endpoint.marshal_with(UserSerializer)
         @endpoint.doc(security='apiKey')
         @token_required
         def put(self, id):
@@ -77,7 +74,7 @@ def setup_users_endpoint():
             db.session.commit()
             return user, HTTPStatus.OK
 
-        @endpoint.marshal_with(model)
+        @endpoint.marshal_with(UserSerializer)
         @endpoint.doc(security='apiKey')
         @token_required
         def delete(self, id):
@@ -90,3 +87,22 @@ def setup_users_endpoint():
             db.session.delete(user)
             db.session.commit()
             return '', HTTPStatus.NO_CONTENT
+
+    @endpoint.route('/<int:id>/features')
+    @endpoint.param('id', description='The user identifier')
+    class UserFeatures(Resource):
+        ''' List user's features '''
+
+        @endpoint.marshal_list_with(FeatureSerializer)
+        @endpoint.param('page', 'page number to retrieve users for')
+        def get(self, id):
+            ''' List feature's users '''
+            page = convert_safely(int, request.args.get('page'), 1)
+            user = UserDB.get(id)
+
+            if not user:
+                return abort(message='User not found', code=HTTPStatus.NOT_FOUND)
+
+            return user.features\
+                       .paginate(page, per_page=LIMIT_PER_PAGE, error_out=False)\
+                       .items

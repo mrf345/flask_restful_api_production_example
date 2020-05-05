@@ -1,8 +1,8 @@
 test: install
-	TESTING="True" python -m pytest --cov=./requester tests/*
+	FLASK_ENV="testing" TESTING="True" python -m pytest --cov=./requester tests/*
 lint: install
-	TESTING="True" flake8 requester && flake8 tests
+	FLASK_ENV="testing" TESTING="True" flake8 requester && flake8 tests
 run: install
-	DEVELOPEMENT="True" FLASK_APP="app" flask run
+	FLASK_ENV="development" FLASK_APP="app" flask run
 install:
 	pip install --quiet -r requirements/test.txt

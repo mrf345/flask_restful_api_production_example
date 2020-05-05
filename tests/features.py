@@ -1,9 +1,10 @@
 import pytest
 from random import choice
 from http import HTTPStatus
+from sqlalchemy.sql.expression import func
 
 from . import get_random_feature
-from requester.database.models import Feature
+from requester.database.models import Feature as FeatureDB, User as UserDB
 from requester.constants import LIMIT_PER_PAGE, TOKENS
 
 
@@ -26,8 +27,8 @@ def test_get_features(c):
     features = response.json
 
     assert [
-        {'id': f.id, 'name': f.name, 'content': f.content, 'users': [u.id for u in f.users]}
-        for f in Feature.query.limit(LIMIT_PER_PAGE)
+        {'id': f.id, 'name': f.name, 'content': f.content}
+        for f in FeatureDB.query.limit(LIMIT_PER_PAGE)
     ] == features
 
 
@@ -63,3 +64,24 @@ def test_update_feature(c):
             assert sorted(new_data.get(key)) == sorted(value)
         else:
             assert new_data.get(key) == value
+
+
+@pytest.mark.usefixtures('c')
+def test_list_feature_users(c):
+    feature = None
+
+    with c.application.app_context():
+        feature = FeatureDB.query.filter(func.length(FeatureDB.users) > 0).first()
+
+    assert feature is not None
+
+    response = c.get(f'/features/{feature.id}/users',
+                     json=True,
+                     follow_redirects=True)
+    users = response.json
+
+    for user in users:
+        user_rec = UserDB.get(user.get('id'))
+
+        for key, value in user.items():
+            assert getattr(user_rec, key, None) == value
