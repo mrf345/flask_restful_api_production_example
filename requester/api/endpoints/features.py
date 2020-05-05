@@ -26,7 +26,7 @@ def setup_features_endpoint():
             page = convert_safely(int, request.args.get('page'), 1)
             features = FeatureDB.query.paginate(page, per_page=LIMIT_PER_PAGE, error_out=False).items
 
-            return [f.to_dict() for f in features], HTTPStatus.OK
+            return features, HTTPStatus.OK
 
         @endpoint.expect(FeatureSerializer)
         @endpoint.marshal_with(FeatureSerializer)
@@ -44,7 +44,7 @@ def setup_features_endpoint():
             except Exception as exc:
                 return abort(message=exc)
 
-            return feature.to_dict(), HTTPStatus.CREATED
+            return feature, HTTPStatus.CREATED
 
     @endpoint.route('/<int:id>')
     @endpoint.param('id', description='The feature identifier')
@@ -59,7 +59,7 @@ def setup_features_endpoint():
             if not feature:
                 return abort(message='Feature not found', code=HTTPStatus.NOT_FOUND)
 
-            return feature.to_dict(), HTTPStatus.OK
+            return feature, HTTPStatus.OK
 
         @endpoint.expect(FeatureSerializer)
         @endpoint.marshal_with(FeatureSerializer)
@@ -76,7 +76,7 @@ def setup_features_endpoint():
             feature.add_users(api.payload.get('users'))
             db.session.commit()
 
-            return feature.to_dict(), HTTPStatus.OK
+            return feature, HTTPStatus.OK
 
         @endpoint.marshal_with(FeatureSerializer)
         @endpoint.doc(security='apiKey')
