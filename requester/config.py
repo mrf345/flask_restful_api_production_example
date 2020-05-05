@@ -1,18 +1,16 @@
 import atexit as at_exit
 import sentry_sdk
-from os import getenv as get_env, path
+from os import getenv as get_env, path, remove
 from sentry_sdk.integrations.flask import FlaskIntegration
 
-from .constants import TESTING_DB, FALLBACK_DB
+from .constants import TESTING_DB, FALLBACK_DB, PRODUCTION, TESTING, DEVELOPMENT
 
 
-PRODUCTION = get_env('PRODUCTION', False)
-TESTING = get_env('TESTING', False)
-DEVELOPMENT = get_env('DEVELOPMENT', False)
 basedir = path.abspath(path.dirname(__file__))
 configuration = {'SQLALCHEMY_TRACK_MODIFICATIONS': False,
                  'SECRET_KEY': get_env('SECRET_KEY'),
-                 'RESTX_VALIDATE': True}
+                 'RESTX_VALIDATE': True,
+                 'DEBUG': True}
 
 
 if PRODUCTION:
@@ -24,7 +22,9 @@ if PRODUCTION:
 elif TESTING:
     configuration.update({'SQLALCHEMY_DATABASE_URI': f'sqlite:///{TESTING_DB}',
                           'TESTING': True})
-    at_exit.register(lambda: path.isfile(TESTING_DB) and get_env(TESTING_DB))
+    db_path = path.join(basedir, TESTING_DB)
+    at_exit.register(lambda: path.isfile(db_path) and remove(db_path))
 elif DEVELOPMENT:
-    configuration.update({'SQLALCHEMY_DATABASE_URI': get_env('DATABASE_URI',
-                                                             'sqlite:///' + path.join(basedir, FALLBACK_DB))})
+    configuration.update({
+        'SQLALCHEMY_DATABASE_URI': get_env('DATABASE_URI',
+                                           f'sqlite:///{path.join(path.join(basedir, ".."), FALLBACK_DB)}')})

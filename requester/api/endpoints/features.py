@@ -1,8 +1,9 @@
 from http import HTTPStatus
 from flask import request
-from flask_restx import Resource, fields, abort
+from flask_restx import Resource, abort
 
 from .. import api
+from . import UserSerializer, FeatureSerializer
 from ..auth import token_required
 from ...database import db
 from ...database.models import Feature as FeatureDB
@@ -13,19 +14,12 @@ from ...utils import convert_safely
 def setup_features_endpoint():
     description = 'Endpoint to handle features CRUD'
     endpoint = api.namespace('features', description=description)
-    model = api.model('Feature', {'id': fields.Integer(required=False, description='feature identifier'),
-                                  'name': fields.String(required=True, description='feature full name'),
-                                  'content': fields.String(required=False, description='feature content details'),
-                                  'users': fields.List(fields.Integer,
-                                                       default=[],
-                                                       required=True,
-                                                       description='list of feature users ids')})
 
     @endpoint.route('/')
     class ListFeatures(Resource):
         ''' List and Add features. '''
 
-        @endpoint.marshal_list_with(model)
+        @endpoint.marshal_list_with(FeatureSerializer)
         @endpoint.param('page', 'page number to retrieve features for')
         def get(self):
             '''List of paginated features'''
@@ -34,8 +28,8 @@ def setup_features_endpoint():
 
             return [f.to_dict() for f in features], HTTPStatus.OK
 
-        @endpoint.expect(model)
-        @endpoint.marshal_with(model)
+        @endpoint.expect(FeatureSerializer)
+        @endpoint.marshal_with(FeatureSerializer)
         def post(self):
             ''' Add new feature, update it with users if name is identical'''
             feature = FeatureDB.get_by_name(api.payload.get('name'))
@@ -57,7 +51,7 @@ def setup_features_endpoint():
     class Feature(Resource):
         ''' Get, Update and Delete feature. '''
 
-        @endpoint.marshal_with(model)
+        @endpoint.marshal_with(FeatureSerializer)
         def get(self, id):
             ''' Get feature '''
             feature = FeatureDB.get(id)
@@ -67,8 +61,8 @@ def setup_features_endpoint():
 
             return feature.to_dict(), HTTPStatus.OK
 
-        @endpoint.expect(model)
-        @endpoint.marshal_with(model)
+        @endpoint.expect(FeatureSerializer)
+        @endpoint.marshal_with(FeatureSerializer)
         @endpoint.doc(security='apiKey')
         @token_required
         def put(self, id):
@@ -84,7 +78,7 @@ def setup_features_endpoint():
 
             return feature.to_dict(), HTTPStatus.OK
 
-        @endpoint.marshal_with(model)
+        @endpoint.marshal_with(FeatureSerializer)
         @endpoint.doc(security='apiKey')
         @token_required
         def delete(self, id):
@@ -97,3 +91,22 @@ def setup_features_endpoint():
             db.session.delete(feature)
             db.session.commit()
             return '', HTTPStatus.NO_CONTENT
+
+    @endpoint.route('/<int:id>/users')
+    @endpoint.param('id', description='The feature identifier')
+    class UserFeatures(Resource):
+        ''' List feature's users '''
+
+        @endpoint.marshal_list_with(UserSerializer)
+        @endpoint.param('page', 'page number to retrieve users for')
+        def get(self, id):
+            ''' List feature's users '''
+            page = convert_safely(int, request.args.get('page'), 1)
+            feature = FeatureDB.get(id)
+
+            if not feature:
+                return abort(message='Feature not found', code=HTTPStatus.NOT_FOUND)
+
+            return feature.users\
+                          .paginate(page, per_page=LIMIT_PER_PAGE, error_out=False)\
+                          .items
